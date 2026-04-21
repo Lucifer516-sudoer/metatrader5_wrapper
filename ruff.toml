@@ -1,0 +1,30 @@
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (logic issues)
+    "W",   # warnings
+    "I",   # import sorting
+    "UP",  # modern Python (pyupgrade)
+    "B",   # bugbear (real mistakes)
+    "C4",  # comprehensions
+    "SIM", # simplifications
+    "ARG", # unused arguments
+    "RET", # return issues
+    "PTH", # pathlib over os
+    "RUF"  # ruff-specific rules
+]
+
+ignore = [
+    "E501",  # handled by line-length
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # allow re-exports
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

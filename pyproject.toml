@@ -1,0 +1,22 @@
+[project]
+name = "metatrader5-wrapper"
+version = "0.1.0"
+description = "A structured wrapper around MetaTrader5 Python API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "metatrader5>=5.0.5735",
+    "pydantic>=2.13.3",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.20.1",
+    "ruff>=0.15.11",
+]
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
