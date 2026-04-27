@@ -3,6 +3,10 @@
 The package avoids exposing raw MT5 return values directly. Instead, public
 operations return typed result objects with explicit success and error state.
 
+## New Features
+
+The package now includes support for historical orders and deals.
+
 ## `OperationResult[T]`
 
 Most read operations return `OperationResult[T]`.
@@ -63,3 +67,7 @@ if result.failed:
 The official MT5 API exposes failures through `last_error()`, which can be
 overwritten by the next call. This wrapper captures that error state
 immediately and binds it to the returned result object.
+
+## Historical Orders and Deals
+
+The new historical functions return results wrapped in `OperationResult` with typed models for `HistoryOrder` and `HistoryDeal`.

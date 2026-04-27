@@ -356,6 +356,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -367,10 +378,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#first-successful-call" class="md-nav__link">
+  <a href="#recommended-path-use-the-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        First successful call
+        Recommended path: use the client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-result-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit result flow
       
     </span>
   </a>
@@ -389,10 +411,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#use-the-client-facade" class="md-nav__link">
+  <a href="#fail-fast-convenience-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Use the client facade
+        Fail-fast convenience helpers
       
     </span>
   </a>
@@ -728,6 +750,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -739,10 +772,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#first-successful-call" class="md-nav__link">
+  <a href="#recommended-path-use-the-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        First successful call
+        Recommended path: use the client
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-result-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit result flow
       
     </span>
   </a>
@@ -761,10 +805,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#use-the-client-facade" class="md-nav__link">
+  <a href="#fail-fast-convenience-helpers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Use the client facade
+        Fail-fast convenience helpers
       
     </span>
   </a>
@@ -803,18 +847,42 @@
 
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">¶</a></h1>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">¶</a></h2>
+<p>The wrapper now includes support for historical orders and deals.</p>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">¶</a></h2>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>metatrader5-wrapper
 </code></pre></div>
-<h2 id="first-successful-call">First successful call<a class="headerlink" href="#first-successful-call" title="Permanent link">¶</a></h2>
+<h2 id="recommended-path-use-the-client">Recommended path: use the client<a class="headerlink" href="#recommended-path-use-the-client" title="Permanent link">¶</a></h2>
+<p>For most scripts, services, and bots, start with <code>MetaTrader5Client</code>. It keeps
+connection lifecycle scoped and makes the happy path short.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SecretStr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginCredential</span><span class="p">,</span> <span class="n">MetaTrader5Client</span>
+
+<span class="n">credentials</span> <span class="o">=</span> <span class="n">LoginCredential</span><span class="p">(</span>
+    <span class="n">login</span><span class="o">=</span><span class="mi">12345678</span><span class="p">,</span>
+    <span class="n">password</span><span class="o">=</span><span class="n">SecretStr</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">),</span>
+    <span class="n">server</span><span class="o">=</span><span class="s2">&quot;Broker-Demo&quot;</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">MetaTrader5Client</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">mt5</span><span class="p">:</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account</span><span class="p">()</span>
+    <span class="n">terminal</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">terminal</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">login</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">terminal</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">terminal</span><span class="o">.</span><span class="n">connected</span><span class="p">)</span>
+    <span class="n">history_orders</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">history_orders_get</span><span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">history_deals</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">history_deals_get</span><span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</code></pre></div>
+<h2 id="explicit-result-flow">Explicit result flow<a class="headerlink" href="#explicit-result-flow" title="Permanent link">¶</a></h2>
 <p>If an existing MetaTrader 5 session is already available, you can initialize
 without explicit credentials.</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize</span><span class="p">,</span> <span class="n">shutdown</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s2">&quot;Could not initialize MetaTrader 5&quot;</span><span class="p">)</span>
 
 <span class="n">shutdown</span><span class="p">()</span>
 </code></pre></div>
@@ -833,17 +901,18 @@ without explicit credentials.</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">describe_error</span><span class="p">())</span>
 </code></pre></div>
-<h2 id="use-the-client-facade">Use the client facade<a class="headerlink" href="#use-the-client-facade" title="Permanent link">¶</a></h2>
+<h2 id="fail-fast-convenience-helpers">Fail-fast convenience helpers<a class="headerlink" href="#fail-fast-convenience-helpers" title="Permanent link">¶</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaTrader5Client</span>
 
 <span class="k">with</span> <span class="n">MetaTrader5Client</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">mt5</span><span class="p">:</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account_info</span><span class="p">()</span>
-    <span class="n">terminal</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">terminal_info</span><span class="p">()</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account</span><span class="p">()</span>
+    <span class="n">eurusd</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">symbol</span><span class="p">(</span><span class="s2">&quot;EURUSD&quot;</span><span class="p">)</span>
+    <span class="n">tick</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="s2">&quot;EURUSD&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">account</span><span class="o">.</span><span class="n">success</span> <span class="ow">and</span> <span class="n">account</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">login</span><span class="p">,</span> <span class="n">account</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">eurusd</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">tick</span><span class="o">.</span><span class="n">bid</span><span class="p">,</span> <span class="n">tick</span><span class="o">.</span><span class="n">ask</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="what-to-read-next">What to read next<a class="headerlink" href="#what-to-read-next" title="Permanent link">¶</a></h2>
 <ul>

@@ -45,12 +45,19 @@ Prefer explicit results when you want to branch on failures:
 ```python
 from metatrader5_wrapper import initialize
 
+**Typed, Pythonic access to the MetaTrader 5 API.** Keep MT5's power, drop the awkward parts.
+
+
+
 result = initialize()
 if result.failed:
     print(result.describe_error())
 ```
 
+
 ## Key features
+
+
 
 - **Typed everywhere**: Pydantic models for every input and output
 - **Explicit errors**: No `last_error()` surprises; errors are captured and carried with each result

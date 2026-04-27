@@ -802,34 +802,27 @@
 
 <h1 id="metatrader5-wrapper">MetaTrader5 Wrapper<a class="headerlink" href="#metatrader5-wrapper" title="Permanent link">¶</a></h1>
 <p>Typed, Pythonic access to the official <code>MetaTrader5</code> Python package.</p>
+<p><img alt="Logo" src="https://haris.github.io/metatrader5_wrapper/assets/logo.svg" /></p>
 <p><code>metatrader5_wrapper</code> keeps the underlying MT5 behavior visible while making
 results safer and easier to use in application code. Raw terminal calls are
 wrapped in typed result models so you can handle success and failure without
-depending on mutable global error state.</p>
+depending on mutable global error state, and the client adds a fail-fast path
+for the common happy flow.</p>
 <h2 id="why-use-it">Why use it<a class="headerlink" href="#why-use-it" title="Permanent link">¶</a></h2>
 <ul>
 <li>typed public API for editors and static type checkers</li>
 <li>Pydantic models for validated inputs and structured outputs</li>
 <li>MT5 error details captured immediately after each operation</li>
+<li>both explicit result-style and fail-fast helper-style workflows</li>
 <li>both function-style and client-style interfaces</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¶</a></h2>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>metatrader5-wrapper
 </code></pre></div>
 <h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">¶</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">()</span>
-
-<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
-</code></pre></div>
-<p>With explicit credentials:</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SecretStr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginCredential</span><span class="p">,</span> <span class="n">initialize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoginCredential</span><span class="p">,</span> <span class="n">MetaTrader5Client</span>
 
 <span class="n">credentials</span> <span class="o">=</span> <span class="n">LoginCredential</span><span class="p">(</span>
     <span class="n">login</span><span class="o">=</span><span class="mi">12345678</span><span class="p">,</span>
@@ -838,13 +831,27 @@ depending on mutable global error state.</p>
     <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">MetaTrader5Client</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">mt5</span><span class="p">:</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account</span><span class="p">()</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">positions</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;EURUSD&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">))</span>
+</code></pre></div>
+<p>If you want to keep branching explicit, the result models stay available:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">initialize</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">describe_error</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="documentation-map">Documentation map<a class="headerlink" href="#documentation-map" title="Permanent link">¶</a></h2>
 <ul>
 <li>Start with <a href="getting-started/">Getting Started</a></li>
 <li>Read <a href="guides/connection/">Connection</a> for terminal lifecycle behavior</li>
 <li>Read <a href="guides/results/">Results Model</a> for <code>ConnectionResult</code> and <code>OperationResult</code></li>
+<li>Read <a href="guides/client-vs-functions/">Client vs Functions</a> to choose your style</li>
 <li>Use <a href="api/">API Reference</a> for generated signatures and docstrings</li>
 </ul>
 <h2 id="current-api-surface">Current API surface<a class="headerlink" href="#current-api-surface" title="Permanent link">¶</a></h2>

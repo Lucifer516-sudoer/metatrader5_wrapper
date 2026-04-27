@@ -1,5 +1,10 @@
 # Getting Started
 
+
+## New Features
+
+The wrapper now includes support for historical orders and deals.
+
 ## Install
 
 ```bash
@@ -29,6 +34,8 @@ with MetaTrader5Client(credentials) as mt5:
 
     print(account.login, account.balance)
     print(terminal.name, terminal.connected)
+    history_orders = mt5.history_orders_get(datetime(2021, 1, 1), datetime(2021, 1, 10))
+    history_deals = mt5.history_deals_get(datetime(2021, 1, 1), datetime(2021, 1, 10))
 ```
 
 ## Explicit result flow

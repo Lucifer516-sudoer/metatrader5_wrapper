@@ -465,6 +465,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#operationresultt" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -491,6 +502,17 @@
     <span class="md-ellipsis">
       
         Why this matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historical-orders-and-deals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Historical Orders and Deals
       
     </span>
   </a>
@@ -708,6 +730,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#operationresultt" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -740,6 +773,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#historical-orders-and-deals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Historical Orders and Deals
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -763,6 +807,8 @@
 <h1 id="results-model">Results Model<a class="headerlink" href="#results-model" title="Permanent link">¶</a></h1>
 <p>The package avoids exposing raw MT5 return values directly. Instead, public
 operations return typed result objects with explicit success and error state.</p>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">¶</a></h2>
+<p>The package now includes support for historical orders and deals.</p>
 <h2 id="operationresultt"><code>OperationResult[T]</code><a class="headerlink" href="#operationresultt" title="Permanent link">¶</a></h2>
 <p>Most read operations return <code>OperationResult[T]</code>.</p>
 <p>Typical fields:</p>
@@ -773,6 +819,9 @@ operations return typed result objects with explicit success and error state.</p
 <li><code>error_message</code></li>
 <li><code>message</code></li>
 <li><code>failed</code></li>
+<li><code>describe_error()</code></li>
+<li><code>unwrap()</code></li>
+<li><code>expect(message)</code></li>
 </ul>
 <p>Example:</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">account_info</span>
@@ -784,6 +833,14 @@ operations return typed result objects with explicit success and error state.</p
 <span class="k">else</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
 </code></pre></div>
+<p>Fail-fast helpers:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">account_info</span>
+
+<span class="n">account</span> <span class="o">=</span> <span class="n">account_info</span><span class="p">()</span><span class="o">.</span><span class="n">expect</span><span class="p">(</span><span class="s2">&quot;Account is required before placing orders&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span>
+</code></pre></div>
+<p>Use these helpers when failure should immediately stop the current flow. Keep
+checking <code>success</code> manually when you want to recover or branch.</p>
 <h2 id="connectionresult"><code>ConnectionResult</code><a class="headerlink" href="#connectionresult" title="Permanent link">¶</a></h2>
 <p>Connection operations return <code>ConnectionResult</code>, which includes an additional
 <code>stage</code> field to show whether the failure happened during initialize or login.</p>
@@ -792,12 +849,14 @@ operations return typed result objects with explicit success and error state.</p
 <span class="n">result</span> <span class="o">=</span> <span class="n">initialize</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stage</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_code</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">error_message</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">describe_error</span><span class="p">())</span>
 </code></pre></div>
 <h2 id="why-this-matters">Why this matters<a class="headerlink" href="#why-this-matters" title="Permanent link">¶</a></h2>
 <p>The official MT5 API exposes failures through <code>last_error()</code>, which can be
 overwritten by the next call. This wrapper captures that error state
 immediately and binds it to the returned result object.</p>
+<h2 id="historical-orders-and-deals">Historical Orders and Deals<a class="headerlink" href="#historical-orders-and-deals" title="Permanent link">¶</a></h2>
+<p>The new historical functions return results wrapped in <code>OperationResult</code> with typed models for <code>HistoryOrder</code> and <code>HistoryDeal</code>.</p>
 
 
 

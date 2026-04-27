@@ -493,10 +493,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#function-style-api" class="md-nav__link">
+  <a href="#start-with-the-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Function-style API
+        Start with the client
       
     </span>
   </a>
@@ -504,10 +504,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#metatrader5client" class="md-nav__link">
+  <a href="#new-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MetaTrader5Client
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-style-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function-style API
       
     </span>
   </a>
@@ -708,10 +719,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#function-style-api" class="md-nav__link">
+  <a href="#start-with-the-client" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Function-style API
+        Start with the client
       
     </span>
   </a>
@@ -719,10 +730,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#metatrader5client" class="md-nav__link">
+  <a href="#new-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MetaTrader5Client
+        New Features
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-style-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Function-style API
       
     </span>
   </a>
@@ -762,6 +784,21 @@
 
 <h1 id="client-vs-functions">Client vs Functions<a class="headerlink" href="#client-vs-functions" title="Permanent link">¶</a></h1>
 <p>The package supports two public styles.</p>
+<h2 id="start-with-the-client">Start with the client<a class="headerlink" href="#start-with-the-client" title="Permanent link">¶</a></h2>
+<p>Use <code>MetaTrader5Client</code> first unless you have a reason not to. It gives you a
+clean lifecycle boundary and the shortest happy-path code.</p>
+<h2 id="new-features">New Features<a class="headerlink" href="#new-features" title="Permanent link">¶</a></h2>
+<p>The package now includes support for historical orders and deals.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaTrader5Client</span>
+
+<span class="k">with</span> <span class="n">MetaTrader5Client</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">mt5</span><span class="p">:</span>
+    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account</span><span class="p">()</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">positions</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;EURUSD&quot;</span><span class="p">)</span>
+    <span class="n">history_orders</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">history_orders_get</span><span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">history_deals</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">history_deals_get</span><span class="p">(</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</code></pre></div>
+<p>This style is usually best for application code, services, bots, notebooks,
+and scripts that should read cleanly from top to bottom.</p>
 <h2 id="function-style-api">Function-style API<a class="headerlink" href="#function-style-api" title="Permanent link">¶</a></h2>
 <p>Use module-level functions if you want a minimal wrapper over the MT5 API shape.</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">account_info</span><span class="p">,</span> <span class="n">initialize</span><span class="p">,</span> <span class="n">shutdown</span>
@@ -771,21 +808,10 @@
 <span class="n">shutdown</span><span class="p">()</span>
 </code></pre></div>
 <p>This style is useful when migrating existing procedural MT5 code.</p>
-<h2 id="metatrader5client"><code>MetaTrader5Client</code><a class="headerlink" href="#metatrader5client" title="Permanent link">¶</a></h2>
-<p>Use <code>MetaTrader5Client</code> if you want a clearer application boundary and a more
-Pythonic interface.</p>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">metatrader5_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaTrader5Client</span>
-
-<span class="k">with</span> <span class="n">MetaTrader5Client</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span> <span class="k">as</span> <span class="n">mt5</span><span class="p">:</span>
-    <span class="n">account</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">account_info</span><span class="p">()</span>
-    <span class="n">positions</span> <span class="o">=</span> <span class="n">mt5</span><span class="o">.</span><span class="n">positions_get</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;EURUSD&quot;</span><span class="p">)</span>
-</code></pre></div>
-<p>This style is usually better for service code, scripts, and applications that
-benefit from a scoped terminal lifecycle.</p>
 <h2 id="which-one-should-you-document-first">Which one should you document first<a class="headerlink" href="#which-one-should-you-document-first" title="Permanent link">¶</a></h2>
-<p>For package docs, lead with <code>MetaTrader5Client</code> in tutorials because it gives
-users the cleanest mental model. Keep function-style examples in the API
-reference and migration-oriented sections.</p>
+<p>Lead with <code>MetaTrader5Client</code> in tutorials and examples because it gives users
+the cleanest mental model. Keep function-style examples in the API reference
+and migration-oriented sections.</p>
 
 
 

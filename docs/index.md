@@ -2,6 +2,8 @@
 
 Typed, Pythonic access to the official `MetaTrader5` Python package.
 
+![Logo](https://haris.github.io/metatrader5_wrapper/assets/logo.svg)
+
 `metatrader5_wrapper` keeps the underlying MT5 behavior visible while making
 results safer and easier to use in application code. Raw terminal calls are
 wrapped in typed result models so you can handle success and failure without
