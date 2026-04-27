@@ -5,7 +5,7 @@ description = "A structured wrapper around MetaTrader5 Python API"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "metatrader5>=5.0.5735",
+    "metatrader5>=5.0.5735; sys_platform == 'win32'",
     "pydantic>=2.13.3",
 ]
 
@@ -21,10 +21,6 @@ dev = [
     "pytest>=9.0.1",
     "ruff>=0.15.11",
 ]
-
-[tool.uv]
-required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
-
 
 [build-system]
 requires = ["hatchling"]
