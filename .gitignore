@@ -10,3 +10,7 @@ scripts/scratch_connection.py
 
 # uv
 uv.lock
+
+.pytest_cache/
+.ruff_cache/
+site/
