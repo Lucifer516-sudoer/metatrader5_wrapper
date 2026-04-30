@@ -16,6 +16,7 @@ class Result(BaseModel, Generic[T]):
     error_code: int | None = None
     error_message: str | None = None
     context: str | None = None
+    operation: str | None = None
 
     @model_validator(mode="after")
     def _validate_state(self) -> "Result[T]":
@@ -30,15 +31,20 @@ class Result(BaseModel, Generic[T]):
         return self
 
     @classmethod
-    def ok(cls, data: T, context: str | None = None) -> "Result[T]":
-        return cls(success=True, data=data, context=context)
+    def ok(
+        cls, data: T, context: str | None = None, operation: str | None = None
+    ) -> "Result[T]":
+        return cls(success=True, data=data, context=context, operation=operation)
 
     @classmethod
-    def fail(cls, error: MT5ErrorInfo, context: str) -> "Result[T]":
+    def fail(
+        cls, error: MT5ErrorInfo, context: str, operation: str | None = None
+    ) -> "Result[T]":
         return cls(
             success=False,
             data=None,
             error_code=error.code,
             error_message=error.message,
             context=context,
+            operation=operation,
         )

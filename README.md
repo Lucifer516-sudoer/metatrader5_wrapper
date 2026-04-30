@@ -1,49 +1,49 @@
 # MetaTrader5 Wrapper
 
-> **The API MetaTrader5 should have shipped.**
+> **The MetaTrader5 API should have been like this.**
+
+Typed, predictable, and production-oriented access to the official `MetaTrader5` Python package.
 
 ## Why this exists
-The official `MetaTrader5` Python module is powerful but procedural, globally stateful, and weakly typed. This package provides a structured, typed, and predictable SDK-like interface.
+The official MT5 module is powerful but difficult to operate safely at scale:
 
-## Problems with official MT5
-- Global `last_error()` state that is easy to lose.
-- Function returns are often ambiguous (`None` vs `False` vs payload).
-- Low discoverability for app teams and API consumers.
+- `last_error()` is global mutable state.
+- Return types are inconsistent (`None`, `False`, tuples, numpy records).
+- API usage encourages procedural flows that are easy to misuse.
 
-## Before / After
+`metatrader5_wrapper` fixes this with:
 
-### Before
+- a stateful `MetaTrader5Client`
+- typed `Result[T]` responses
+- per-operation error capture and context
+- typed domain models (`Position`, `Candle`)
+
+## Quickstart
 ```python
-import MetaTrader5 as mt5
-mt5.initialize()
-positions = mt5.positions_get()
-print(mt5.last_error())
-```
-
-### After
-```python
-from metatrader5_wrapper import LoginCredentials, MetaTrader5Client
 from pydantic import SecretStr
+from metatrader5_wrapper import LoginCredentials, MetaTrader5Client
 
 creds = LoginCredentials(login=123456, password=SecretStr("secret"), server="Broker-Demo")
 
 with MetaTrader5Client() as client:
     client.initialize(creds)
     client.login(creds)
-    result = client.positions()
-    if result.success:
-        print(result.data)
+    positions = client.positions()
 ```
 
-## Quickstart
-1. Initialize terminal
-2. Login
-3. Fetch positions / candles
-4. Shutdown handled by context manager
+## Result[T] usage
+```python
+result = client.positions()
 
-## Features
-- Strongly typed result model: `Result[T]`
-- Per-operation `last_error()` capture (never lost)
-- Typed `Position` and `Candle` models
-- Smart pip calculations from `symbol_info.point` and `symbol_info.digits`
-- Idempotent connection lifecycle (`initialize` / `login` / `shutdown`)
+if result.success:
+    for p in result.data:
+        print(p.symbol, p.pips_profit)
+else:
+    print(result.error_code, result.error_message, result.context)
+```
+
+## Reliability guarantees
+- `mt5.last_error()` is captured once per MT5 operation and bound to that operation.
+- Client lifecycle is guarded (`initialize` before `login`/data calls).
+- Empty datasets are treated as valid successes (`[]`).
+- Malformed payloads return structured failures, not random crashes.

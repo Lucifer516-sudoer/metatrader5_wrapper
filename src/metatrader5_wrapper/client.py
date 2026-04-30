@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import logging
+from time import perf_counter
+
+from metatrader5_wrapper._core.errors import MT5ErrorInfo
 from metatrader5_wrapper._core.execution import Result
 from metatrader5_wrapper.connection.models import LoginCredentials
 from metatrader5_wrapper.connection.service import ConnectionService
@@ -10,28 +14,82 @@ from metatrader5_wrapper.positions.service import PositionService
 
 
 class MetaTrader5Client:
-    def __init__(self) -> None:
+    def __init__(self, *, debug: bool = False) -> None:
         self.connection = ConnectionService()
         self._positions = PositionService()
         self.market = MarketService()
+        self._initialized = False
+        self._logged_in = False
+        self._debug = debug
+        self._logger = logging.getLogger("metatrader5_wrapper")
 
     def __enter__(self) -> "MetaTrader5Client":
         return self
 
     def __exit__(self, *_: object) -> None:
-        self.shutdown()
+        shutdown_result = self.shutdown()
+        if self._debug and not shutdown_result.success:
+            self._logger.error("[MT5] shutdown | failure | code=%s", shutdown_result.error_code)
+
+    def _log_result(self, name: str, result: Result[object], started: float) -> None:
+        if not self._debug:
+            return
+        elapsed_ms = int((perf_counter() - started) * 1000)
+        status = "success" if result.success else "failure"
+        code = 0 if result.success else result.error_code
+        self._logger.debug("[MT5] %s | %s | code=%s | %sms", name, status, code, elapsed_ms)
+
+    def _guard_initialized(self, operation: str) -> Result[None] | None:
+        if self._initialized:
+            return None
+        return Result.fail(
+            MT5ErrorInfo(code=-10, message="Client not initialized. Call initialize() first."),
+            context=operation,
+            operation=operation,
+        )
 
     def initialize(self, credentials: LoginCredentials | None = None) -> Result[None]:
-        return self.connection.initialize(credentials)
+        started = perf_counter()
+        result = self.connection.initialize(credentials)
+        self._initialized = result.success
+        self._log_result("initialize", result, started)
+        return result
 
     def login(self, credentials: LoginCredentials) -> Result[None]:
-        return self.connection.login(credentials)
+        guard = self._guard_initialized("login")
+        if guard is not None:
+            self._log_result("login", guard, perf_counter())
+            return guard
+        started = perf_counter()
+        result = self.connection.login(credentials)
+        self._logged_in = result.success
+        self._log_result("login", result, started)
+        return result
 
     def shutdown(self) -> Result[None]:
-        return self.connection.shutdown()
+        started = perf_counter()
+        result = self.connection.shutdown()
+        self._initialized = False
+        self._logged_in = False
+        self._log_result("shutdown", result, started)
+        return result
 
     def positions(self, symbol: str | None = None) -> Result[list[Position]]:
-        return self._positions.positions(symbol=symbol)
+        guard = self._guard_initialized("positions_get")
+        if guard is not None:
+            return Result[list[Position]].model_validate(guard.model_dump())
+        started = perf_counter()
+        result = self._positions.positions(symbol=symbol)
+        self._log_result("positions_get", Result[object].model_validate(result.model_dump()), started)
+        return result
 
     def get_candles(self, symbol: str, timeframe: int, count: int) -> Result[list[Candle]]:
-        return self.market.get_candles(symbol=symbol, timeframe=timeframe, count=count)
+        guard = self._guard_initialized("copy_rates_from_pos")
+        if guard is not None:
+            return Result[list[Candle]].model_validate(guard.model_dump())
+        started = perf_counter()
+        result = self.market.get_candles(symbol=symbol, timeframe=timeframe, count=count)
+        self._log_result(
+            "copy_rates_from_pos", Result[object].model_validate(result.model_dump()), started
+        )
+        return result

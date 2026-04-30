@@ -11,7 +11,7 @@ class MarketService:
     def get_candles(self, symbol: str, timeframe: int, count: int) -> Result[list[Candle]]:
         raw = call_mt5(mt5.copy_rates_from_pos, symbol, timeframe, 0, count)
         if raw.data is None:
-            return Result.fail(raw.error, context="copy_rates_from_pos")
+            return Result.fail(raw.error, context="copy_rates_from_pos", operation="copy_rates_from_pos")
         try:
             candles = [
                 Candle(
@@ -32,5 +32,6 @@ class MarketService:
                     }
                 ),
                 context="copy_rates_from_pos",
+                operation="copy_rates_from_pos",
             )
-        return Result.ok(candles, context="copy_rates_from_pos")
+        return Result.ok(candles, context="copy_rates_from_pos", operation="copy_rates_from_pos")

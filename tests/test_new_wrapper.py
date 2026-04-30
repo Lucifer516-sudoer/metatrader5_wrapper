@@ -5,6 +5,7 @@ import metatrader5_wrapper.market.symbols as market_service
 import metatrader5_wrapper.positions.service as positions_service
 import metatrader5_wrapper._core.raw as raw_mod
 from metatrader5_wrapper.connection.models import LoginCredentials
+from metatrader5_wrapper.client import MetaTrader5Client
 from metatrader5_wrapper.positions.models import Position
 from pydantic import SecretStr
 
@@ -98,3 +99,27 @@ def test_candle_malformed_payload_returns_failure(monkeypatch):
     res = market_service.MarketService().get_candles("EURUSD", 1, 1)
     assert not res.success
     assert res.error_code == -4
+
+
+def test_client_guards_before_initialize():
+    client = MetaTrader5Client()
+    res = client.positions()
+    assert not res.success
+    assert res.error_code == -10
+
+
+def test_empty_candle_data_success(monkeypatch):
+    fake = FakeMT5()
+    fake.initialize = lambda **_: True
+    fake.copy_rates_from_pos = lambda *args: []
+    fake.shutdown = lambda: True
+    monkeypatch.setattr(market_service, "mt5", fake)
+    monkeypatch.setattr(raw_mod, "mt5", fake)
+    import metatrader5_wrapper.connection.service as connection_service
+
+    monkeypatch.setattr(connection_service, "mt5", fake)
+    client = MetaTrader5Client()
+    assert client.initialize().success
+    candles = client.get_candles("EURUSD", 1, 10)
+    assert candles.success
+    assert candles.data == []

@@ -14,13 +14,13 @@ class PositionService:
     def positions(self, symbol: str | None = None) -> Result[list[Position]]:
         raw = call_mt5(mt5.positions_get, symbol=symbol) if symbol else call_mt5(mt5.positions_get)
         if raw.data is None:
-            return Result.fail(raw.error, context="positions_get")
+            return Result.fail(raw.error, context="positions_get", operation="positions_get")
         rows = list(raw.data)
         symbols = {row.symbol for row in rows if row.symbol not in self._symbol_cache}
         for sym in symbols:
             info_raw = call_mt5(mt5.symbol_info, sym)
             if info_raw.data is None:
-                return Result.fail(info_raw.error, context=f"symbol_info:{sym}")
+                return Result.fail(info_raw.error, context=f"symbol_info:{sym}", operation="symbol_info")
             self._symbol_cache[sym] = (int(info_raw.data.digits), float(info_raw.data.point))
 
         try:
@@ -48,5 +48,6 @@ class PositionService:
                     }
                 ),
                 context="positions_get",
+                operation="positions_get",
             )
-        return Result.ok(parsed, context="positions_get")
+        return Result.ok(parsed, context="positions_get", operation="positions_get")

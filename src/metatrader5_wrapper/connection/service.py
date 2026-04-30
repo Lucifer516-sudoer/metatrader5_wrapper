@@ -13,13 +13,13 @@ class ConnectionService:
 
     def initialize(self, credentials: LoginCredentials | None = None) -> Result[None]:
         if self._initialized:
-            return Result.ok(None, context="initialize")
+            return Result.ok(None, context="initialize", operation="initialize")
         kwargs = {"path": credentials.path} if credentials and credentials.path else {}
         raw = call_mt5(mt5.initialize, **kwargs)
         if not raw.data:
-            return Result.fail(raw.error, context="initialize")
+            return Result.fail(raw.error, context="initialize", operation="initialize")
         self._initialized = True
-        return Result.ok(None, context="initialize")
+        return Result.ok(None, context="initialize", operation="initialize")
 
     def login(self, credentials: LoginCredentials) -> Result[None]:
         raw = call_mt5(
@@ -29,12 +29,12 @@ class ConnectionService:
             server=credentials.server,
         )
         if not raw.data:
-            return Result.fail(raw.error, context="login")
-        return Result.ok(None, context="login")
+            return Result.fail(raw.error, context="login", operation="login")
+        return Result.ok(None, context="login", operation="login")
 
     def shutdown(self) -> Result[None]:
         raw = call_mt5(mt5.shutdown)
         self._initialized = False
         if raw.data is False:
-            return Result.fail(raw.error, context="shutdown")
-        return Result.ok(None, context="shutdown")
+            return Result.fail(raw.error, context="shutdown", operation="shutdown")
+        return Result.ok(None, context="shutdown", operation="shutdown")
