@@ -1,25 +1,39 @@
 [project]
 name = "metatrader5-wrapper"
 version = "0.1.0"
-description = "A structured wrapper around MetaTrader5 Python API"
+description = "Typed, reliable MetaTrader5 SDK-style wrapper with structured results."
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+  { name = "MetaTrader5 Wrapper Contributors" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Office/Business :: Financial :: Investment",
+  "Typing :: Typed",
+]
 dependencies = [
-    "metatrader5>=5.0.5735; sys_platform == 'win32'",
-    "pydantic>=2.13.3",
+  "metatrader5>=5.0.5735; sys_platform == 'win32'",
+  "pydantic>=2.13.3",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
-    "mkdocs>=1.6.1,<2",
-    "mkdocs-gen-files>=0.6.1",
-    "mkdocs-literate-nav>=0.6.3",
-    "mkdocs-material>=9.7.6,<10",
-    "mkdocs-section-index>=0.3.12",
-    "mkdocstrings[python]>=1.0.4",
-    "mypy>=1.20.1",
-    "pytest>=9.0.1",
-    "ruff>=0.15.11",
+  "mypy>=1.20.1",
+  "pytest>=9.0.1",
+  "ruff>=0.15.11",
+  "mkdocs>=1.6.1,<2",
+  "mkdocs-gen-files>=0.6.1",
+  "mkdocs-literate-nav>=0.6.3",
+  "mkdocs-material>=9.7.6,<10",
+  "mkdocs-section-index>=0.3.12",
+  "mkdocstrings[python]>=1.0.4",
 ]
 
 [build-system]

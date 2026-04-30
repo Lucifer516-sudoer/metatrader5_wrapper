@@ -1,29 +1,28 @@
 # MetaTrader5 Wrapper
 
-> **The MetaTrader5 API should have been like this.**
+> **The API MetaTrader5 should have shipped.**
 
-Typed, predictable, and production-oriented access to the official `MetaTrader5` Python package.
+A minimal, typed, production-oriented wrapper for the official `MetaTrader5` Python package.
 
-## Why this exists
-The official MT5 module is powerful but difficult to operate safely at scale:
+## Installation
 
-- `last_error()` is global mutable state.
-- Return types are inconsistent (`None`, `False`, tuples, numpy records).
-- API usage encourages procedural flows that are easy to misuse.
+```bash
+pip install metatrader5-wrapper
+```
 
-`metatrader5_wrapper` fixes this with:
+For development:
 
-- a stateful `MetaTrader5Client`
-- typed `Result[T]` responses
-- per-operation error capture and context
-- typed domain models (`Position`, `Candle`)
+```bash
+pip install -e .[dev]
+```
 
 ## Quickstart
+
 ```python
 from pydantic import SecretStr
-from metatrader5_wrapper import LoginCredentials, MetaTrader5Client
+from metatrader5_wrapper import LoginCredential, MetaTrader5Client
 
-creds = LoginCredentials(login=123456, password=SecretStr("secret"), server="Broker-Demo")
+creds = LoginCredential(login=12345678, password=SecretStr("your-password"), server="Broker-Demo")
 
 with MetaTrader5Client() as client:
     client.initialize(creds)
@@ -31,19 +30,55 @@ with MetaTrader5Client() as client:
     positions = client.positions()
 ```
 
-## Result[T] usage
+## Why this exists
+
+The official MT5 API is powerful but awkward for production Python:
+
+- global mutable `last_error()` state
+- inconsistent return types
+- procedural flow that's easy to misuse
+
+This wrapper provides:
+
+- typed `Result[T]` responses
+- operation-bound error capture
+- explicit client lifecycle guards
+- typed `Position` and `Candle` models
+
+## Result[T] example
+
 ```python
-result = client.positions()
+result = client.get_candles("EURUSD", timeframe=1, count=50)
 
 if result.success:
-    for p in result.data:
-        print(p.symbol, p.pips_profit)
+    print("Loaded", len(result.data or []), "candles")
 else:
-    print(result.error_code, result.error_message, result.context)
+    print(
+        "Operation failed:",
+        result.operation,
+        result.error_code,
+        result.error_message,
+    )
 ```
 
-## Reliability guarantees
-- `mt5.last_error()` is captured once per MT5 operation and bound to that operation.
-- Client lifecycle is guarded (`initialize` before `login`/data calls).
-- Empty datasets are treated as valid successes (`[]`).
-- Malformed payloads return structured failures, not random crashes.
+Example failure output:
+
+```text
+Operation failed: login 10013 Invalid account
+```
+
+## Public API
+
+- `MetaTrader5Client`
+- `LoginCredential`
+- `Result`
+- `Position`
+- `Candle`
+
+## Versioning
+
+This project follows **Semantic Versioning**.
+
+- `0.1.x`: early public releases, rapid improvements
+- `0.y.z`: potentially breaking changes before `1.0`
+- `1.0+`: stable public API guarantees
