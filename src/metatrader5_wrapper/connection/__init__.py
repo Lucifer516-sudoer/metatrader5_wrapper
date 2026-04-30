@@ -1,14 +1,4 @@
-from metatrader5_wrapper.connection.models import (
-    ConnectionResult,
-    ConnectionStage,
-    LoginCredential,
-)
-from metatrader5_wrapper.connection.service import initialize, login
+from metatrader5_wrapper.connection.models import LoginCredentials
+from metatrader5_wrapper.connection.service import ConnectionService
 
-__all__ = [
-    "ConnectionResult",
-    "ConnectionStage",
-    "LoginCredential",
-    "initialize",
-    "login",
-]
+__all__ = ["ConnectionService", "LoginCredentials"]

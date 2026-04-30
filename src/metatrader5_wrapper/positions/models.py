@@ -1,25 +1,30 @@
-from metatrader5_wrapper.models import MT5NamedTupleModel
+from pydantic import BaseModel
 
 
-class Position(MT5NamedTupleModel):
-    """Typed position payload returned by ``MetaTrader5.positions_get()``."""
-
+class Position(BaseModel):
     ticket: int
-    time: int
-    time_msc: int | None = None
-    time_update: int
-    time_update_msc: int | None = None
-    type: int
-    magic: int
-    identifier: int
-    reason: int | None = None
-    volume: float
-    price_open: float
-    sl: float
-    tp: float
-    price_current: float
-    swap: float
-    profit: float
     symbol: str
-    comment: str
-    external_id: str | None = None
+    price_open: float
+    price_current: float
+    tp: float
+    sl: float
+    volume: float
+    digits: int
+    point: float
+    type: int
+
+    @property
+    def pip_size(self) -> float:
+        return self.point * 10 if self.digits in (3, 5) else self.point
+
+    @property
+    def pips_profit(self) -> float:
+        direction = 1 if self.type == 0 else -1
+        return ((self.price_current - self.price_open) * direction) / self.pip_size
+
+    @property
+    def pips_to_tp(self) -> float:
+        if self.tp == 0:
+            return 0.0
+        direction = 1 if self.type == 0 else -1
+        return ((self.tp - self.price_current) * direction) / self.pip_size
