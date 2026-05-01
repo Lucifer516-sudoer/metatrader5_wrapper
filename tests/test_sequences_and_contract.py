@@ -48,6 +48,17 @@ class SeqMT5:
             sl=1.0900,
             volume=0.1,
             type=0,
+            time=1000,
+            time_msc=1000000,
+            time_update=1001,
+            time_update_msc=1001000,
+            magic=0,
+            identifier=1,
+            reason=0,
+            swap=0.0,
+            profit=0.0,
+            comment="",
+            external_id="",
         )
         self.position_price += 0.0001
         self.err = (0, "OK")
@@ -59,7 +70,7 @@ class SeqMT5:
 
     def copy_rates_from_pos(self, *args):
         self.err = (0, "OK")
-        return [{"time": 1, "open": 1.0, "high": 1.1, "low": 0.9, "close": 1.05}]
+        return [{"time": 1, "open": 1.0, "high": 1.1, "low": 0.9, "close": 1.05, "tick_volume": 100, "spread": 2, "real_volume": 50}]
 
 
 def test_realistic_flow_with_retry_and_shutdown(monkeypatch):

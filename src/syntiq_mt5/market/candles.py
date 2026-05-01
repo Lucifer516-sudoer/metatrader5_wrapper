@@ -7,3 +7,6 @@ class Candle(BaseModel):
     high: float
     low: float
     close: float
+    tick_volume: int = 0
+    spread: int = 0
+    real_volume: int = 0

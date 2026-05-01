@@ -47,7 +47,11 @@ def test_connection_failure(monkeypatch):
 
 def test_position_parsing_and_pricing(monkeypatch):
     fake = FakeMT5()
-    fake.positions_get = lambda **_: [SimpleNamespace(ticket=1, symbol="EURUSD", price_open=1.1, price_current=1.101, tp=1.102, sl=1.0, volume=0.1, type=0)]
+    fake.positions_get = lambda **_: [SimpleNamespace(
+        ticket=1, symbol="EURUSD", price_open=1.1, price_current=1.101, tp=1.102, sl=1.0, volume=0.1, type=0,
+        time=1000, time_msc=1000000, time_update=1001, time_update_msc=1001000,
+        magic=0, identifier=1, reason=0, swap=0.0, profit=10.0, comment="", external_id=""
+    )]
     fake.symbol_info = lambda s: SimpleNamespace(digits=5, point=0.00001)
     monkeypatch.setattr(positions_service, "mt5", fake)
     monkeypatch.setattr(raw_mod, "mt5", fake)
@@ -60,7 +64,7 @@ def test_position_parsing_and_pricing(monkeypatch):
 
 def test_candle_conversion(monkeypatch):
     fake = FakeMT5()
-    fake.copy_rates_from_pos = lambda *args: [{"time": 1, "open": 1.0, "high": 2.0, "low": 0.5, "close": 1.5}]
+    fake.copy_rates_from_pos = lambda *args: [{"time": 1, "open": 1.0, "high": 2.0, "low": 0.5, "close": 1.5, "tick_volume": 100, "spread": 2, "real_volume": 50}]
     monkeypatch.setattr(market_service, "mt5", fake)
     monkeypatch.setattr(raw_mod, "mt5", fake)
     svc = market_service.MarketService()
@@ -98,7 +102,7 @@ def test_candle_malformed_payload_returns_failure(monkeypatch):
     monkeypatch.setattr(raw_mod, "mt5", fake)
     res = market_service.MarketService().get_candles("EURUSD", 1, 1)
     assert not res.success
-    assert res.error_code == -4
+    assert res.error_code == -1004
 
 
 def test_client_guards_before_initialize():

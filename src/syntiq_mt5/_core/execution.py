@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar
 
-from pydantic import BaseModel
-from pydantic import model_validator
+from pydantic import BaseModel, model_validator
 
 from .errors import MT5ErrorInfo
 
@@ -19,7 +18,7 @@ class Result(BaseModel, Generic[T]):
     operation: str | None = None
 
     @model_validator(mode="after")
-    def _validate_state(self) -> "Result[T]":
+    def _validate_state(self) -> Result[T]:
         if self.success:
             return self
         if self.data is not None:
@@ -33,13 +32,13 @@ class Result(BaseModel, Generic[T]):
     @classmethod
     def ok(
         cls, data: T, context: str | None = None, operation: str | None = None
-    ) -> "Result[T]":
+    ) -> Result[T]:
         return cls(success=True, data=data, context=context, operation=operation)
 
     @classmethod
     def fail(
         cls, error: MT5ErrorInfo, context: str, operation: str | None = None
-    ) -> "Result[T]":
+    ) -> Result[T]:
         return cls(
             success=False,
             data=None,

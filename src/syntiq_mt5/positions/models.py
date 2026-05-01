@@ -3,15 +3,26 @@ from pydantic import BaseModel
 
 class Position(BaseModel):
     ticket: int
-    symbol: str
-    price_open: float
-    price_current: float
-    tp: float
-    sl: float
+    time: int = 0
+    time_msc: int = 0
+    time_update: int = 0
+    time_update_msc: int = 0
+    type: int
+    magic: int = 0
+    identifier: int = 0
+    reason: int = 0
     volume: float
+    price_open: float
+    sl: float
+    tp: float
+    price_current: float
+    swap: float = 0.0
+    profit: float = 0.0
+    symbol: str
+    comment: str = ""
+    external_id: str = ""
     digits: int
     point: float
-    type: int
 
     @property
     def pip_size(self) -> float:
