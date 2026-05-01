@@ -1,8 +1,10 @@
-# Task: Place and manage orders
+# Place Orders
 
-Validate and send trade orders.
+Validate and execute trade requests using `TradeRequest`.
 
-## Check order before sending
+---
+
+## Market order (buy)
 
 ```python
 from syntiq_mt5 import TradeRequest, constants
@@ -10,81 +12,135 @@ from syntiq_mt5 import TradeRequest, constants
 request = TradeRequest(
     action=constants.TRADE_ACTION_DEAL,
     symbol="EURUSD",
-    volume=0.1,
+    volume=0.10,
     type=constants.ORDER_TYPE_BUY,
     price=1.08500,
     sl=1.08000,
     tp=1.09000,
     deviation=10,
-    comment="Test order",
+    comment="my order",
 )
 
-res = mt5.order_check(request)
-if res.success:
-    result = res.data
-    if result.is_successful:
-        print("Order check passed")
-        print(f"Required margin: {result.price}")
-    else:
-        print(f"Order check failed: {result.comment}")
-else:
-    print(res.error_code, res.error_message)
-```
+# 1. Validate first (no order is placed)
+check = mt5.order_check(request)
+if check.success and check.data.is_successful:
+    print("Validation passed — sending order")
 
-Output example:
+    # 2. Send the order
+    res = mt5.order_send(request)
+    if res.success and res.data.is_successful:
+        print(f"Filled: order={res.data.order}  deal={res.data.deal}  price={res.data.price}")
+    else:
+        print(f"Rejected: {res.data.comment if res.success else res.error_message}")
+else:
+    reason = check.data.comment if check.success else check.error_message
+    print(f"Validation failed: {reason}")
+```
 
 ```text
-Order check passed
-Required margin: 108.5
+Validation passed — sending order
+Filled: order=123456  deal=789012  price=1.08503
 ```
 
-## Send order
+---
+
+## Pending order (buy limit)
+
+```python
+request = TradeRequest(
+    action=constants.TRADE_ACTION_PENDING,
+    symbol="EURUSD",
+    volume=0.10,
+    type=constants.ORDER_TYPE_BUY_LIMIT,
+    price=1.08000,
+    sl=1.07500,
+    tp=1.09000,
+    type_time=constants.ORDER_TIME_GTC,
+    comment="buy limit",
+)
+
+res = mt5.order_send(request)
+if res.success and res.data.is_successful:
+    print(f"Pending order placed: {res.data.order}")
+```
+
+---
+
+## Modify SL/TP on an open position
+
+```python
+request = TradeRequest(
+    action=constants.TRADE_ACTION_SLTP,
+    symbol="EURUSD",
+    position=123456,   # position ticket
+    sl=1.07800,
+    tp=1.09500,
+)
+
+res = mt5.order_send(request)
+if res.success and res.data.is_successful:
+    print("SL/TP updated")
+```
+
+---
+
+## Pre-flight calculations
+
+```python
+# Required margin for 0.1 lot EURUSD buy at 1.08500
+margin = mt5.order_calc_margin(constants.ORDER_TYPE_BUY, "EURUSD", 0.10, 1.08500)
+if margin.success:
+    print(f"Required margin: {margin.data:.2f}")
+
+# Expected profit for 50-pip move
+profit = mt5.order_calc_profit(constants.ORDER_TYPE_BUY, "EURUSD", 0.10, 1.08500, 1.09000)
+if profit.success:
+    print(f"Expected profit: {profit.data:.2f}")
+```
+
+```text
+Required margin: 108.50
+Expected profit: 50.00
+```
+
+---
+
+## TradeRequest fields
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `action` | `TradeAction` | required | `TRADE_ACTION_DEAL`, `PENDING`, `SLTP`, `MODIFY`, `REMOVE`, `CLOSE_BY` |
+| `symbol` | `str` | `""` | Trading instrument |
+| `volume` | `float` | `0.0` | Lots |
+| `type` | `OrderType` | `BUY` | Order type |
+| `price` | `float` | `0.0` | Execution price |
+| `sl` | `float` | `0.0` | Stop loss (`0.0` = not set) |
+| `tp` | `float` | `0.0` | Take profit (`0.0` = not set) |
+| `deviation` | `int` | `0` | Max price deviation in points |
+| `type_filling` | `OrderFilling` | `FOK` | Fill policy |
+| `type_time` | `OrderTime` | `GTC` | Expiry policy |
+| `comment` | `str` | `""` | Order comment |
+| `position` | `int` | `0` | Position ticket (for `SLTP` action) |
+| `order` | `int` | `0` | Order ticket (for `MODIFY`/`REMOVE`) |
+
+---
+
+## Checking the result
+
+`order_send()` has two layers of success:
 
 ```python
 res = mt5.order_send(request)
-if res.success:
-    result = res.data
-    if result.is_successful:
-        print(f"Order placed: {result.order}")
-        print(f"Deal: {result.deal}")
-    else:
-        print(f"Order failed: {result.comment}")
+
+if not res.success:
+    # SDK-level failure (not connected, parse error, etc.)
+    print(f"SDK error: {res.error_message}")
+elif not res.data.is_successful:
+    # Broker rejected the trade
+    print(f"Broker rejected: {res.data.comment} (retcode {res.data.retcode})")
 else:
-    print(res.error_code, res.error_message)
+    # Trade accepted
+    print(f"Deal: {res.data.deal}  Order: {res.data.order}")
 ```
 
-Output example:
-
-```text
-Order placed: 123456
-Deal: 789012
-```
-
-## Calculate margin and profit
-
-```python
-from syntiq_mt5 import constants
-
-# Calculate required margin
-res = mt5.order_calc_margin(
-    constants.ORDER_TYPE_BUY, "EURUSD", 0.1, 1.08500
-)
-if res.success:
-    print(f"Required margin: {res.data}")
-
-# Calculate expected profit
-res = mt5.order_calc_profit(
-    constants.ORDER_TYPE_BUY, "EURUSD", 0.1, 1.08500, 1.09000
-)
-if res.success:
-    print(f"Expected profit: {res.data}")
-```
-
-Output example:
-
-```text
-Required margin: 108.5
-Expected profit: 50.0
-```
-
-Note: Use `constants.TRADE_ACTION_*` and `constants.ORDER_TYPE_*` instead of magic numbers.
+See [Error Handling](../core/error-handling.md) and [Constants → Trade Return Codes](../reference/constants.md#trade-return-codes) for retcode details.

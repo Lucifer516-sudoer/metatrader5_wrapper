@@ -1,23 +1,76 @@
 site_name: syntiq-mt5
-site_description: Minimal typed MetaTrader5 SDK wrapper
+site_description: Minimal, typed, and reliable MetaTrader 5 SDK for Python
+site_url: https://syntiq-mt5.readthedocs.io
+repo_url: https://github.com/syntiq/syntiq-mt5
+repo_name: syntiq/syntiq-mt5
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.instant
+    - navigation.indexes
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+
 nav:
   - Home: index.md
   - Quickstart: getting-started.md
   - Core Concepts:
-      - Result[T]: core/results.md
-      - Error handling: core/error-handling.md
       - Lifecycle: core/lifecycle.md
+      - Result[T]: core/results.md
+      - Error Handling: core/error-handling.md
   - Tasks:
-      - Get positions: tasks/get-positions.md
-      - Get candles: tasks/get-candles.md
-      - Get account info: tasks/get-account-info.md
-      - Get symbols: tasks/get-symbols.md
-      - Get ticks: tasks/get-ticks.md
-      - Get history: tasks/get-history.md
-      - Place orders: tasks/place-orders.md
-      - Market book: tasks/market-book.md
-      - Handle errors: tasks/handle-errors.md
+      - Get Positions: tasks/get-positions.md
+      - Get Candles: tasks/get-candles.md
+      - Place Orders: tasks/place-orders.md
+      - Get Symbols: tasks/get-symbols.md
+      - Get History: tasks/get-history.md
+      - Get Ticks: tasks/get-ticks.md
+      - Market Book: tasks/market-book.md
+      - Get Account Info: tasks/get-account-info.md
+      - Handle Errors: tasks/handle-errors.md
   - Reference:
       - Constants: reference/constants.md
-plugins:
-  - search
+      - Models: reference/models.md

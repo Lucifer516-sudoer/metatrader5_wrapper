@@ -1,53 +1,72 @@
-# Task: Work with market book
+# Market Book
 
-Subscribe to and retrieve Level 2 order book data.
+Subscribe to and read Level 2 (Depth of Market) order book data.
 
-## Subscribe to market book
+---
 
-```python
-res = mt5.market_book_add("EURUSD")
-if res.success and res.data:
-    print("Subscribed to market book")
-else:
-    print(res.error_code, res.error_message)
-```
-
-Output example:
-
-```text
-Subscribed to market book
-```
-
-## Get market book entries
+## Subscribe, read, release
 
 ```python
-res = mt5.market_book_get("EURUSD")
-if res.success:
-    print(f"Book entries: {len(res.data)}")
-    for entry in res.data[:5]:
-        side = "BUY" if entry.is_buy else "SELL"
-        print(f"{side}: {entry.price} @ {entry.volume_real}")
+# 1. Subscribe
+add = mt5.market_book_add("EURUSD")
+if not add.success or not add.data:
+    print("Market book not available for this symbol")
 else:
-    print(res.error_code, res.error_message)
-```
+    # 2. Read the current snapshot
+    res = mt5.market_book_get("EURUSD")
+    if res.success:
+        print(f"Book entries: {len(res.data)}")
+        for entry in res.data:
+            side = "BUY " if entry.is_buy else "SELL"
+            kind = "market" if entry.is_market else "limit "
+            print(f"  {side} {kind}  {entry.price:.5f}  {entry.volume_real} lots")
 
-Output example:
+    # 3. Release when done
+    mt5.market_book_release("EURUSD")
+```
 
 ```text
 Book entries: 10
-SELL: 1.08465 @ 1.5
-SELL: 1.08470 @ 2.0
-BUY: 1.08450 @ 1.0
-BUY: 1.08445 @ 1.5
-BUY: 1.08440 @ 2.5
+  SELL limit   1.08480  2.50 lots
+  SELL limit   1.08475  1.00 lots
+  SELL limit   1.08470  3.00 lots
+  BUY  limit   1.08455  1.50 lots
+  BUY  limit   1.08450  2.00 lots
 ```
 
-## Unsubscribe from market book
+---
+
+## BookEntry fields
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `BookType` | `SELL`, `BUY`, `SELL_MARKET`, `BUY_MARKET` |
+| `price` | `float` | Price level |
+| `volume` | `int` | Volume at this level (integer lots) |
+| `volume_real` | `float` | Volume at this level (fractional lots) |
+| `is_buy` | `bool` | `True` for buy-side entries |
+| `is_sell` | `bool` | `True` for sell-side entries |
+| `is_market` | `bool` | `True` for market orders (vs limit orders) |
+
+---
+
+## Separate bids and asks
 
 ```python
-res = mt5.market_book_release("EURUSD")
-if res.success and res.data:
-    print("Unsubscribed from market book")
+res = mt5.market_book_get("EURUSD")
+
+if res.success:
+    bids = [e for e in res.data if e.is_buy]
+    asks = [e for e in res.data if e.is_sell]
+
+    best_bid = max(bids, key=lambda e: e.price, default=None)
+    best_ask = min(asks, key=lambda e: e.price, default=None)
+
+    if best_bid and best_ask:
+        print(f"Best bid: {best_bid.price}  Best ask: {best_ask.price}")
 ```
 
-Note: Market book data is not available for all symbols and brokers.
+---
+
+!!! note
+    Market book data is not available for all symbols or brokers. `market_book_add()` returns `data=False` when the symbol does not support DOM. Always check `add.data` before calling `market_book_get()`.
