@@ -16,10 +16,9 @@ class Result(Generic[T]):
     operation: str | None   # logical operation name
 ```
 
-The model enforces a strict invariant:
-
-- `success=True` → `data` is set, error fields are `None`
-- `success=False` → `data` is `None`, `error_code` and `error_message` are set
+!!! success "Strict invariant"
+    - `success=True` → `data` is set, error fields are `None`
+    - `success=False` → `data` is `None`, `error_code` and `error_message` are set
 
 ---
 
@@ -87,7 +86,8 @@ if res.success:
         print(f"{len(res.data)} positions")
 ```
 
-`res.success` tells you whether the call worked. `res.data` tells you what came back.
+!!! tip
+    `res.success` tells you whether the call worked. `res.data` tells you what came back.
 
 ---
 

@@ -37,9 +37,10 @@ message:    Invalid account
 
 Some errors originate inside the SDK, not from MT5. These use negative error codes:
 
-| Code | Meaning |
-|---|---|
-| `-10` | `initialize()` was not called before this operation |
+!!! warning "SDK error codes"
+    | Code | Meaning |
+    |---|---|
+    | `-10` | `initialize()` was not called before this operation |
 
 ```python
 mt5 = MetaTrader5Client()
@@ -83,8 +84,9 @@ else:
 
 `order_send()` and `order_check()` have two layers of success:
 
-1. **`res.success`** — did the SDK call succeed (connection, parsing, etc.)?
-2. **`res.data.is_successful`** — did the broker accept the trade?
+!!! info "Two-level validation"
+    1. **`res.success`** — did the SDK call succeed (connection, parsing, etc.)?
+    2. **`res.data.is_successful`** — did the broker accept the trade?
 
 ```python
 res = mt5.order_send(request)

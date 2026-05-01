@@ -2,8 +2,15 @@
 
 Every session follows the same four steps.
 
-```
-initialize() → login() → use → shutdown()
+```mermaid
+graph LR
+    A[initialize] --> B[login]
+    B --> C[use]
+    C --> D[shutdown]
+    style A fill:#7c4dff
+    style B fill:#7c4dff
+    style C fill:#00bcd4
+    style D fill:#7c4dff
 ```
 
 ---
@@ -40,7 +47,7 @@ with MetaTrader5Client() as mt5:
 
 ## Step by step
 
-### `initialize(creds)`
+### :material-numeric-1-circle:{ .lg .middle } `initialize(creds)`
 
 Connects to the MT5 terminal process on your machine. The terminal must already be running.
 
@@ -48,18 +55,18 @@ Connects to the MT5 terminal process on your machine. The terminal must already 
 - Must succeed before any other call
 - Sets an internal `_initialized` flag — all other methods check this flag and fail fast if it is not set
 
-### `login(creds)`
+### :material-numeric-2-circle:{ .lg .middle } `login(creds)`
 
 Authenticates with the broker server using your account number, password, and server name.
 
 - Requires a successful `initialize()` first
 - `server` must match exactly what appears in the MT5 terminal (e.g. `"ICMarkets-Demo"`)
 
-### Use the client
+### :material-numeric-3-circle:{ .lg .middle } Use the client
 
 All data and trading operations are available after a successful login. See the [Tasks](../tasks/get-positions.md) section for copy-paste examples.
 
-### `shutdown()`
+### :material-numeric-4-circle:{ .lg .middle } `shutdown()`
 
 Disconnects from the terminal. Called automatically when the `with` block exits — even if an exception occurs.
 
@@ -67,27 +74,23 @@ Disconnects from the terminal. Called automatically when the `with` block exits 
 
 ## Common mistakes
 
-**Calling methods before `initialize()`**
+!!! failure "Calling methods before `initialize()`"
+    ```python
+    mt5 = MetaTrader5Client()
+    res = mt5.positions()  # fails immediately
+    # res.success == False
+    # res.error_message == "Client not initialized. Call initialize() first."
+    ```
 
-```python
-mt5 = MetaTrader5Client()
-res = mt5.positions()  # fails immediately
-# res.success == False
-# res.error_message == "Client not initialized. Call initialize() first."
-```
+!!! failure "Not checking `initialize()` result"
+    ```python
+    mt5.initialize(creds)   # silently fails if terminal is not running
+    mt5.login(creds)        # also fails — but with a confusing error
+    ```
+    Always check `result.success` after `initialize()` and `login()`.
 
-**Not checking `initialize()` result**
-
-```python
-mt5.initialize(creds)   # silently fails if terminal is not running
-mt5.login(creds)        # also fails — but with a confusing error
-```
-
-Always check `result.success` after `initialize()` and `login()`.
-
-**Wrong server name**
-
-The `server` field must match the broker server name exactly as shown in the MT5 terminal's login screen. A mismatch causes `login()` to fail with an authentication error.
+!!! failure "Wrong server name"
+    The `server` field must match the broker server name exactly as shown in the MT5 terminal's login screen. A mismatch causes `login()` to fail with an authentication error.
 
 ---
 
@@ -102,10 +105,11 @@ with MetaTrader5Client(debug=True) as mt5:
     mt5.positions()
 ```
 
-```text
+```text title="Output"
 [MT5] initialize | success | code=0 | 142ms
 [MT5] login | success | code=0 | 87ms
 [MT5] positions_get | success | code=0 | 12ms
 ```
 
-Logs are emitted at `DEBUG` level via the `syntiq_mt5` logger.
+!!! info
+    Logs are emitted at `DEBUG` level via the `syntiq_mt5` logger.

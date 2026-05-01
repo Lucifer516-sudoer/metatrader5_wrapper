@@ -6,10 +6,11 @@ Get from install to live data in under 60 seconds.
 
 ## Prerequisites
 
-- **Windows** — the MT5 Python API is Windows-only
-- **MetaTrader 5 terminal** installed ([download](https://www.metatrader5.com/en/download))
-- A valid MT5 account (demo accounts work fine)
-- Python 3.12+
+!!! info "What you need"
+    - **Windows** — the MT5 Python API is Windows-only
+    - **MetaTrader 5 terminal** installed ([download](https://www.metatrader5.com/en/download))
+    - A valid MT5 account (demo accounts work fine)
+    - **Python 3.12+**
 
 ---
 
@@ -70,20 +71,61 @@ Open positions: 2
 
 ## What just happened?
 
-| Step | Method | What it does |
-|---|---|---|
-| 1 | `initialize(creds)` | Connects to the MT5 terminal process |
-| 2 | `login(creds)` | Authenticates with the broker server |
-| 3 | `positions()` | Returns all open positions |
-| — | `with` block exit | Calls `shutdown()` automatically |
+=== "Step 1: Initialize"
+    ```python
+    init = mt5.initialize(creds)
+    ```
+    Connects to the MT5 terminal process on your machine. The terminal must already be running.
 
-Every method returns `Result[T]`. Check `result.success` before accessing `result.data`.
+=== "Step 2: Login"
+    ```python
+    login = mt5.login(creds)
+    ```
+    Authenticates with the broker server using your account number, password, and server name.
+
+=== "Step 3: Use"
+    ```python
+    res = mt5.positions()
+    ```
+    All data and trading operations are available after a successful login.
+
+=== "Step 4: Shutdown"
+    ```python
+    # Automatic when `with` block exits
+    ```
+    Disconnects from the terminal. Called automatically — even if an exception occurs.
+
+!!! tip "Result\[T\] pattern"
+    Every method returns `Result[T]`. Check `result.success` before accessing `result.data`.
 
 ---
 
 ## Next steps
 
-- **[Lifecycle](core/lifecycle.md)** — common mistakes and the full connection flow
-- **[Result\[T\]](core/results.md)** — how to handle success and failure
-- **[Get Candles](tasks/get-candles.md)** — fetch OHLCV price data
-- **[Place Orders](tasks/place-orders.md)** — validate and send trade requests
+<div class="grid cards" markdown>
+
+-   :material-timeline-clock:{ .lg .middle } __[Lifecycle](core/lifecycle.md)__
+
+    ---
+
+    Common mistakes and the full connection flow
+
+-   :material-check-decagram:{ .lg .middle } __[Result\[T\]](core/results.md)__
+
+    ---
+
+    How to handle success and failure
+
+-   :material-candlestick:{ .lg .middle } __[Get Candles](tasks/get-candles.md)__
+
+    ---
+
+    Fetch OHLCV price data
+
+-   :material-cash-multiple:{ .lg .middle } __[Place Orders](tasks/place-orders.md)__
+
+    ---
+
+    Validate and send trade requests
+
+</div>
